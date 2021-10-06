@@ -1,0 +1,116 @@
+---
+title: "migration-shiny-prep"
+author: "JJayes"
+date: "06/10/2021"
+output: html_document
+---
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+```
+
+
+# Migration shiny prep
+## Purpose
+
+I want to create a shiny app that allows you to select a year from the census and see who migrated somewhere within sweden.
+
+I have data from the IPUMS International dataset on Sweden.
+
+
+### Reading in IPUMS data
+```{r}
+# library(ipumsr)
+# library(here)
+# 
+# dat <- read_ipums_micro(
+#     
+#     ddi = here("migration-shiny-idea", "data", "ipumsi_00002.xml"),
+#     data_file = here("migration-shiny-idea", "data", "ipumsi_00002.dat.gz")
+#     
+# )
+# 
+# dat %>% head() %>% view()
+# 
+# dat %>% colnames()
+```
+
+### Working with just the necessary info to start with
+
+```{r}
+# df <- dat %>% 
+#     select(YEAR, PARSE, BPLSE2, NAMEFRST, SEX)
+# 
+# df %>% 
+#     sample_n(100)
+# 
+# df %>% 
+#     write_rds(here("migration-shiny-idea", "data", "migration_info.rds"), compress = "gz")
+```
+
+
+```{r}
+df <- read_rds(here("migration-shiny-idea", "data", "migration_info.rds"))
+
+df %>% 
+    count(PARSE, sort = T) 
+
+df %>% 
+    mutate(parish = parse_number(as.character(PARSE))) %>% 
+    count(parish)
+```
+
+
+```{r}
+map_file <- here("migration-shiny-idea", "maps", "Kommun_Sweref99TM_region.shp")
+
+library(sf)
+library(ggiraph)
+
+map <- st_read(map_file)
+
+map %>%
+  as_tibble() %>%
+  count(KnKod)
+```
+
+
+```{r}
+gg_iraph_map <- map %>% 
+    ggplot() +
+    geom_sf_interactive(aes(tooltip = KnNamn)) +
+    theme_void()
+
+girafe(
+  ggobj = gg_iraph_map,
+  width_svg = 8,
+  height_svg = 4,
+  options = list(
+    # opts_tooltip(css = tooltip_css, delay_mouseover = 0, delay_mouseout = 0),
+    opts_hover_inv(css = "opacity:0.1;"),
+    opts_hover(css = "stroke-width:2;")
+  )
+)
+
+```
+
+### What about the parishes?
+
+```{r}
+library(leaflet)
+
+map_file <- here("migration-shiny-idea", "maps", "forsamlingar_2021-01-01.shp")
+map <- st_read(map_file)
+
+map_wgs84 <- st_transform(map, "+init=epsg:4326")
+
+
+map_leaflet <- map_wgs84 %>% 
+    leaflet() %>% 
+    addTiles() %>% 
+    addPolygons(label=~namn)
+
+
+```
+
