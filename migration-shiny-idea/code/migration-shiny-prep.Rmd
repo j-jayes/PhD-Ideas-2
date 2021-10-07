@@ -3,11 +3,14 @@ title: "migration-shiny-prep"
 author: "JJayes"
 date: "06/10/2021"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
+library(here)
 ```
 
 
@@ -70,7 +73,7 @@ library(ggiraph)
 
 map <- st_read(map_file)
 
-map %>%
+instalmap %>%
   as_tibble() %>%
   count(KnKod)
 ```
@@ -113,4 +116,81 @@ map_leaflet <- map_wgs84 %>%
 
 
 ```
+
+### Fixing parish names
+
+```{r}
+df <- df %>% 
+  # sample_n(10) %>% 
+  mutate(kommun_living = str_sub(PARSE,1,nchar(PARSE)-5),
+         kommun_living = case_when(
+           
+           nchar(kommun_living) == 3 ~ str_c("0", kommun_living),
+           TRUE ~ kommun_living))
+
+df %>% 
+  count(kommun_living)
+```
+
+Great! There are just 288 kommuns that individuals are living in now, and we can match these to the list of kommun names that we can link to the map.
+
+Then I can make a matrix that has the number of people born in a kommun on one axis and the number living in it on the other. Can use this axis to support the map.
+
+```{r}
+df <- df %>% 
+  # sample_n(10) %>% 
+  mutate(kommun_born = str_sub(BPLSE2,1,nchar(BPLSE2)-5),
+         kommun_born = case_when(
+           
+           nchar(kommun_born) == 3 ~ str_c("0", kommun_born),
+           TRUE ~ kommun_born))
+```
+
+
+```{r}
+df_counts <- df %>% 
+  count(YEAR, kommun_living, kommun_born)
+
+# df_counts %>% 
+#   write_rds(here("migration-shiny-idea", "data", "migration-counts.rds"), compress = "gz")
+```
+
+
+```{r}
+library(readxl)
+kommun_names <- read_excel(here("migration-shiny-idea", "data", "list-of-municipalities.xlsx")) %>% 
+  janitor::clean_names()
+
+kommun_names <- kommun_names %>% 
+  filter(nchar(code) == 4)
+```
+
+Matching
+
+```{r}
+df_counts_named <- df_counts %>% 
+  inner_join(kommun_names, by = c("kommun_living" = "code")) %>% 
+  rename(kommun_living_name = name) %>% 
+  inner_join(kommun_names, by = c("kommun_born" = "code")) %>% 
+  rename(kommun_born_name = name)
+
+# df_counts_named %>% 
+#   write_rds(here("migration-shiny-idea", "data", "migration-counts-named.rds"), compress = "gz")
+
+```
+
+
+## Idea for flexdashboard
+
+I want to have two plots in a single panel, and a table.
+
+You choose a kommun and you see on a map how many people were born in it, and a plot with that same info on a column chart for, say, the 12 most prevalent municipalities.
+
+```{r}
+df_counts %>% 
+  filter(YEAR == 1880,
+         kommun_living == "0114") %>% 
+  arrange(desc(n))
+```
+
 
