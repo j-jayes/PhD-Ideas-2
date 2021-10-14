@@ -1,0 +1,13 @@
+name: migration-shiny-v1
+title: migration-shiny-v1
+username:
+account: jonathan-jayes
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4824083
+bundleId: 5117215
+url: https://jonathan-jayes.shinyapps.io/migration-shiny-v1/
+when: 1633675020.42911
+lastSyncTime: 1633675020.42911
+asMultiple: FALSE
+asStatic: FALSE

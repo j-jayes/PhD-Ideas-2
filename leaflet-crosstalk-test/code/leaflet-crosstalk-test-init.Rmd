@@ -1,0 +1,60 @@
+---
+title: "leaflet-crosstalk-test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+library(leaflet)
+library(crosstalk)
+```
+
+
+```{r d3tools}
+# install.packages("d3scatter")
+library(d3scatter)
+```
+
+```{r}
+shared_quakes <- SharedData$new(quakes[sample(nrow(quakes), 100),])
+
+bscols(
+  leaflet(shared_quakes, width = "100%", height = 300) %>%
+    addTiles() %>%
+    addMarkers(),
+  d3scatter(shared_quakes, ~depth, ~mag, width = "100%", height = 300)
+)
+```
+
+### Trying to do the same but with my own data
+
+```{r}
+df <- read_rds(here("migration-shiny-idea", "data", "migration-counts-named.rds"))
+
+map_wgs84 <- read_rds(here("leaflet-crosstalk-test", "data", "kommun_map_wgs84.rds"))
+
+df_map <- df %>% 
+  inner_join(map_wgs84, by = c("kommun_living" = "KnKod"))
+
+df_map <- df_map %>% st_as_sf()
+
+df_map <- sp::SpatialPolygonsDataFrame(  # create a SPDF
+  polygons = map_wgs84$geometry,  # the school co-ordinates
+  data = schools_data,  # the school data
+  proj4string = CRS("+init=epsg:27700")  # BNG projection system
+)
+```
+
+Need to make a spatial points data frame in order to map the polygons?
+
+```{r}
+
+map_leaflet <- df_map %>% 
+    leaflet() %>% 
+    addTiles() %>% 
+    addPolygons(label=~KnNamn)
+```
+

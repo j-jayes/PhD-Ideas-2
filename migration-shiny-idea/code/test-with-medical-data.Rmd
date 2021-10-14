@@ -1,0 +1,26 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(readxl)
+library(here)
+```
+
+### Reading in data
+
+```{r}
+
+df <- read_rds(here("migration-shiny-idea", "data", "migration_info.rds"))
+
+```
+
+
+```{r}
+library(skimr)
+```
+
