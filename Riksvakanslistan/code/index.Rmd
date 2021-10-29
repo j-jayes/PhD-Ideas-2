@@ -1,0 +1,139 @@
+---
+title: "Riksvakanslistan"
+author: "JJayes"
+date: "27/10/2021"
+output:
+    bookdown::html_document2:
+        toc: true
+        toc_float: true
+        number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = F, message = F, fig.align='center')
+
+library(tidyverse)
+library(here)
+```
+
+
+## Purpose
+
+This document shows some examples of the riksvakanslistan (state vacancy lists) available at the main library special collections section in Lund.
+
+## Document type
+
+The riksvakanslistan were lists of vacancies and job seekers collected, compiled and distributed by Sveriges Offentliga Arbetsförmedling (The Swedish Public Employment Service). The list was distributed weekly. Each list is a double sided sheet of paper, perhaps A3 size. It contains information on the number of vacancies available in each län (Swedish county) in addition to Stockholm city, for a total of 25 geographic units. Further, it has information on the arbetssökande or jobseekers in these same regions. In contrast to the vacancies section this section lacks the exact number of each type of jobseeker.
+
+LUB has records from 1916 to 1958, with a few missing years, towards the end of the period.
+
+## Document structure
+### Front side - vacancies
+
+The front side of the list contains a title section and coat of arms of the Kingdom of Sweden. In the top right of the document is the date.
+
+Below this is a table of vacancies. The rows are different occupations while the columns are the 24 län and Stockholm city. Each cell contains either the number of vacancies available or an "X" indicating that an indefinite number of vacancies exist.
+
+A photograph below shows the top left section on the list dated 30 June 1916.
+
+```{r}
+knitr::include_graphics(here("Riksvakanslistan", "images", "top-left-table.png"))
+```
+
+This section lists different agricultural occupations, we can see that unskilled workers called "Arbetsdrängar" are in high demand.
+
+#### Occupational types
+
+Though the structure changes slightly over time, the types of occupations are grouped into five broad categories. These are:
+
+```{r}
+occs <- tibble(svk = c("Jordbruksarbete", "Yrkesarbete", "Husligt arbete", "Hotellrörelse", "Kontor och handel"),
+       eng = c("Agricultural work", "Professional work", "Domestic work", "Hospitality", "Officework and trade"))
+
+knitr::kable(occs, col.names = c("Occupation", "English translation"))
+```
+
+#### Occupational ranking
+
+It is also interesting to note that within many workplaces there are distinctions between people with different levels of qualifications or experience. For example, workers in the dairy are classified into:
+
+```{r}
+occs_dairy <- tibble(svk = c("Mejerinnor", "Mejerijungfrur", "Mejerielever"),
+       eng = c("Dairy maids", "Dairy girls", "Dairy students"))
+
+knitr::kable(occs_dairy, col.names = c("Occupation", "English translation"))
+```
+
+```{r}
+knitr::include_graphics(here("Riksvakanslistan", "images", "mejerinnor.png"))
+```
+
+
+There are more than 100 different occupations listed, and though these change slightly over time, it is an immense amount of information!
+
+### Reverse side - job seekers and special ads
+
+The reverse side has information on job seekers by occupation in each location. Further, it divides job seekers into men and women.  It does not list the exact number of workers seeking work.
+
+In the photograph below we can see that in Koppabers län there were Grovarbetare or general male labourers looking for work. 
+
+```{r}
+knitr::include_graphics(here("Riksvakanslistan", "images", "arbetssökande.png"))
+```
+
+#### Special ads
+
+Beyond the occupations alone, there is a section on the reverse side that includes more detailed information about the vacancies that exist in some areas, or the characteristics or skills of the job seekers.
+
+For example, there is an example of skilled road builders looking for work in Växjö:
+
+```{r}
+dozers <- tibble(svk = c("**Schaktmästare** söker vägarbete eller annan liknande anställning. Vidare genom arbetsförmedlingen, Växjö"),
+       eng = c("Bull dozer / grader masters are looking for road work or other similar employment. Further through the employment service, Växjö"))
+
+knitr::kable(dozers, col.names = c("Jobseeker ad", "English translation"))
+
+```
+
+On the vacancies side, there is a detailed description of the skills required of a shop assistant to work in Borås:
+
+```{r}
+shop_assistant <- tibble(svk = c("Handelsbiträde - dekoratör - fri från värnplikt, vana i manufaktur- eller porslins- och glasbranschen, med god smak för skyltning samt kunnig i texting, erhåller anställning i Borås den 1 okt. Begynnelselön 200 kr. per månad. Vidare infromation meddelar Arbetsförmedlingen i Göteborg."),
+       eng = c("Sales assistant - decorator - free from military service, used to the manufacturing or porcelain and glass industry, with good taste for signage and knowledgeable in texting, will be employed in Borås on 1 October. Starting salary SEK 200. per month. Further information is provided by the Swedish Public Employment Service."))
+
+knitr::kable(shop_assistant, col.names = c("Vacancy ad", "English translation"))
+```
+
+
+### Information sources
+
+Where does the information printed come from? According to the text on the document, the number of vacancies are provided by the public employment service office in each län. The text reads "Lediga platser, anmälda vid kontor inom" ~ "Vacancies available registered at offices within" the different counties.
+
+## Why is it interesting?
+
+Three things make it interesting to me:
+
+### 1. Documented skill gap and simultaneous reduction of informational costs
+
+The source has information on the kinds of occupations that were needed in the different regions beyond what the employers could source locally. In this way, the source functions as a metric for the skills gap that existed in the geographic regions included, over time. Further, the special ads section contains more detailed descriptions of the kinds of workers sought, and this may reveal the kinds of skills that were highly sought after. We would expect that if this informational channel is effective, the labour market would function well and signals regarding the scarcity of workers would induce the unemployed to consider retraining or relocating.
+
+The production of the the lists also lowers informational costs associated with relocating. If you are a worker and you know that it is possible to find work in your field through the public employment service in a certain area, the risk of moving to that area is much lower. I am not sure if there is some policy which shocks this, for instance a disruption in the printing for a few years, but this would create some lovely variation to exploit for a causal estimate.
+
+### 2. Amazing high frequency information.
+
+The fact that the list is released every week is super cool! There will be seasonal patterns I am sure with agricultural workers recruited in anticipation of and during the agricultural season and then a likely lack of vacancies during the winter. It could be interesting to look at the extent to which seasonal variation increases or decreases over time in some occupations.
+
+
+### 3. Complementarity with evidence on technology adoption.
+
+This information on worker skills sought might complement the evidence on technology adoption in different areas. For instance, we see from [Berger and Ostermeyer (forthcoming)](http://ssha2021.ssha.org/uploads/210200) that the adoption of the steam engine both replaced other sources of power and raised the number of workers employed within an establishment by a magnitude of 37 percent. This might allow us to answer questions like "how did the adoption of new technology change the kinds of skills sought by employers" not just their number.
+
+```{r}
+knitr::include_graphics(here("Riksvakanslistan", "images", "steam-adoption.png"))
+```
+
+```{r}
+knitr::include_graphics(here("Riksvakanslistan", "images", "steam-workers.png"))
+
+```
+
