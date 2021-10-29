@@ -3,12 +3,15 @@ title: "migration-shiny-prep"
 author: "JJayes"
 date: "06/10/2021"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(here)
+
 ```
 
 
@@ -26,10 +29,10 @@ I have data from the IPUMS International dataset on Sweden.
 # library(here)
 # 
 # dat <- read_ipums_micro(
-#     
-#     ddi = here("migration-shiny-idea", "data", "ipumsi_00002.xml"),
-#     data_file = here("migration-shiny-idea", "data", "ipumsi_00002.dat.gz")
-#     
+# 
+#     ddi = here("migration-shiny-idea", "data", "ipumsi_00003.xml"),
+#     data_file = here("migration-shiny-idea", "data", "ipumsi_00003.dat.gz")
+# 
 # )
 # 
 # dat %>% head() %>% view()
@@ -48,6 +51,177 @@ I have data from the IPUMS International dataset on Sweden.
 # 
 # df %>% 
 #     write_rds(here("migration-shiny-idea", "data", "migration_info.rds"), compress = "gz")
+```
+
+### Now working with a bit more info
+
+I want to get information on the hisco codes, maybe gender also?
+
+I'll stat with a small subset, maybe 1000 rows, just to get going.
+
+PARSE Parish
+BPLSE2 Parish of birth
+
+
+FAMSIZE	Number of own family members in household
+
+```{r}
+# df <- dat %>%
+#   sample_n(5000)
+
+df %>% 
+  select(YEAR, PARSE, BPLSE2, SEX, PERSONS, OCCISCO)
+
+df %>% 
+  count(OCCHISCO)
+
+df %>% 
+  count(OCCISCO)
+
+df %>% 
+  filter(OCCISCO != 99) %>% 
+  count(YEAR, OCCISCO) %>% 
+  complete(YEAR, OCCISCO, fill = list(n = 0)) %>% 
+  ggplot(aes(YEAR, n, fill = factor(OCCISCO))) +
+  geom_area(position = "fill")
+```
+
+Might want to know household type composition and hisco composition? And how this changes over time?
+
+```{r}
+df %>% 
+  count(YEAR, SEX) %>% 
+  ggplot(aes(YEAR, n, fill = factor(SEX))) +
+  geom_area(position = "fill")
+```
+
+#### What about a ridge plot of household size over time?
+
+```{r}
+df %>%
+  filter(PERSONS < 100) %>% 
+  count(YEAR, PERSONS) %>% 
+  # complete(YEAR, PERSONS, fill = list(n = 0)) %>% 
+  ggplot(aes(PERSONS, fill = factor(YEAR))) +
+  geom_density() +
+  facet_wrap(~ YEAR)
+  
+library(ggridges)
+
+df %>%
+  filter(PERSONS < 60) %>% 
+  count(YEAR, PERSONS) %>% 
+  ggplot(aes(x = PERSONS, y = YEAR, fill = factor(YEAR))) +
+  geom_density_ridges() +
+  labs(x = "Household size",
+       y = NULL) +
+  theme(legend.position = "none")
+
+df %>%
+  filter(PERSONS < 60) %>% 
+  mutate(household_type = if_else(HHTYPE < 7, "Family households", "Composite households")) %>% 
+  count(YEAR, PERSONS, household_type) %>% 
+  ggplot(aes(x = PERSONS, y = YEAR, 
+             height = stat(density),
+             fill = factor(YEAR))) +
+  # geom_density_ridges(stat = "binline", bins = 70, scale = 0.45, draw_baseline = FALSE) +
+  geom_density_ridges() +
+  facet_wrap(~ household_type, nrow = 2) +
+  labs(x = "Household size",
+       y = NULL) +
+  theme_ridges() +
+  theme(legend.position = "none") 
+```
+
+Household types?
+
+```{r}
+df %>%
+  count(YEAR, HHTYPE) %>% 
+  ggplot(aes(YEAR, n, fill = factor(HHTYPE))) +
+  geom_area(position = "fill")
+
+df %>% count(HHTYPE)
+
+HHTYPE_codes <- tibble(
+  
+  codes = c(1, 2, 3, 4, 6, 7, 8, 11, 99),
+  descriptions = c(
+    "One-person household",
+    "Married/cohab couple, no children",
+    "Married/cohab couple with children",
+    "Single-parent family",
+    "Extended family, relatives only",
+    "Composite household, family and non-relatives",
+    "Non-family household",
+    "Group quarters",
+    "Unclassifiable"
+  )
+  
+)
+```
+
+NCOUPLES
+
+```{r}
+df %>% 
+  count(NCOUPLES, YEAR) %>% 
+  ggplot(aes(YEAR, n, fill = factor(NCOUPLES))) +
+  geom_area(position = "fill")
+
+df %>% 
+  count(YEAR, SEX) %>% 
+  ggplot(aes(YEAR, n, colour = factor(SEX))) +
+  geom_line()
+
+df %>% colnames()
+
+df %>% count(YEAR, LABFORCE, SEX) %>% 
+  ggplot(aes(YEAR, n, colour = factor(SEX))) +
+  geom_line() +
+  facet_wrap(~ LABFORCE)
+```
+
+
+```{r}
+df %>% 
+  count(SEX, OCCISCO) %>% 
+  ggplot(aes(SEX, n, fill = factor(OCCISCO))) +
+  geom_col(position = "fill")
+
+
+df %>% 
+  count(OCCISCO)
+
+OCCISCO_codes <- tibble(
+  
+  codes = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 99),
+  descriptions = c(
+    "Legislators, senior officials and managers",
+    "Professionals",
+    "Technicians and associate professionals",
+    "Clerks",
+    "Service workers and shop and market sales",
+    "Skilled agricultural and fishery workers",
+    "Crafts and related trades workers",
+    "Plant and machine operators and assemblers",
+    "Elementary occupations",
+    "Armed forces",
+    "NIU (not in universe)"
+  )
+)
+```
+
+
+Mutations
+
+```{r}
+df %>% 
+  mutate(SEX = factor(case_when(
+    SEX == 1 ~ "Male",
+    SEX == 2 ~ "Female"
+  )))
+
 ```
 
 
@@ -71,7 +245,9 @@ library(ggiraph)
 
 map <- st_read(map_file)
 
-map %>%
+# map %>% write_rds(here("migration-shiny-idea", "kommun_map.rds"))
+
+instalmap %>%
   as_tibble() %>%
   count(KnKod)
 ```
@@ -115,3 +291,82 @@ map_leaflet <- map_wgs84 %>%
 
 ```
 
+### Fixing parish names
+
+```{r}
+df <- df %>% 
+  # sample_n(10) %>% 
+  mutate(kommun_living = str_sub(PARSE,1,nchar(PARSE)-5),
+         kommun_living = case_when(
+           
+           nchar(kommun_living) == 3 ~ str_c("0", kommun_living),
+           TRUE ~ kommun_living))
+
+df %>% 
+  count(kommun_living)
+```
+
+Great! There are just 288 kommuns that individuals are living in now, and we can match these to the list of kommun names that we can link to the map.
+
+Then I can make a matrix that has the number of people born in a kommun on one axis and the number living in it on the other. Can use this axis to support the map.
+
+```{r}
+df <- df %>% 
+  # sample_n(10) %>% 
+  mutate(kommun_born = str_sub(BPLSE2,1,nchar(BPLSE2)-5),
+         kommun_born = case_when(
+           
+           nchar(kommun_born) == 3 ~ str_c("0", kommun_born),
+           TRUE ~ kommun_born))
+```
+
+
+```{r}
+df_counts <- df %>% 
+  count(YEAR, kommun_living, kommun_born)
+
+# df_counts %>% 
+#   write_rds(here("migration-shiny-idea", "data", "migration-counts.rds"), compress = "gz")
+```
+
+
+```{r}
+library(readxl)
+kommun_names <- read_excel(here("migration-shiny-idea", "data", "list-of-municipalities.xlsx")) %>% 
+  janitor::clean_names()
+
+kommun_names <- kommun_names %>% 
+  filter(nchar(code) == 4)
+```
+
+Matching
+
+```{r}
+df_counts_named <- df_counts %>% 
+  inner_join(kommun_names, by = c("kommun_living" = "code")) %>% 
+  rename(kommun_living_name = name) %>% 
+  inner_join(kommun_names, by = c("kommun_born" = "code")) %>% 
+  rename(kommun_born_name = name)
+
+# df_counts_named %>% 
+#   write_rds(here("migration-shiny-idea", "data", "migration-counts-named.rds"), compress = "gz")
+
+```
+
+
+## Idea for flexdashboard
+
+I want to have two plots in a single panel, and a table.
+
+You choose a kommun and you see on a map how many people were born in it, and a plot with that same info on a column chart for, say, the 12 most prevalent municipalities.
+
+```{r}
+df_counts_named %>% 
+  filter(YEAR == 1880,
+         kommun_living == "0114") %>% 
+  arrange(desc(n))
+```
+
+The function will look something like this:
+
+You'll have a filter for the year, then you'll filter for kommun name, you'll join by birth to the map, and then draw the map. Not sure if I want to show shares or absolute numbers? Could do share on the map and aboslute numbers on the chart for the largest 5, for instance.
