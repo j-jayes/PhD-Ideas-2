@@ -11,7 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(here)
-theme_set(theme_light())
+
 ```
 
 
@@ -229,7 +229,7 @@ df %>%
 df <- read_rds(here("migration-shiny-idea", "data", "migration_info.rds"))
 
 df %>% 
-    count(PARSE, sort = T) 
+    count(PARSE) 
 
 df %>% 
     mutate(parish = parse_number(as.character(PARSE))) %>% 

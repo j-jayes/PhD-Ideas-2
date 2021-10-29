@@ -1,0 +1,66 @@
+---
+title: "Riksvakanslistan"
+author: "JJayes"
+date: "27/10/2021"
+output:
+    bookdown::html_document2:
+        toc: true
+        toc_float: true
+        number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = F, message = F)
+
+library(tidyverse)
+library(here)
+```
+
+
+## Purpose
+
+This document shows some examples of the riksvakanslistan (state vacancy lists) available at the main library special collections section in Lund.
+
+### Document type
+
+The riksvakanslistan were lists of vacancies collected, compiled and distributed by Sveriges Offentliga Arbetsförmedling (The Swedish Public Employment Service). The list was distributed weekly. Each list is a double sided sheet of paper, perhaps A3 size. It contains information on the number of vacancies available in each län (Swedish county) in addition to Stockholm city, for a total of 25 geographic units. Further, it has information on the arbetssökande or jobseekers in these same regions. In contrast to the vacancies section this section lacks the exact number of each type of jobseeker.
+
+LUB has records from 1916 to 1958, with a few missing years, towards the end of the period.
+
+### Document structure
+
+The front side of the list contains a title section and coat of arms of the Kingdom of Sweden. In the top right of the document is the date, written in the formate dd-mm-yyyy.
+
+### Occupational types
+
+Though the structure changes slightly over time, the types of occupations are grouped into five categories. These are:
+
+```{r}
+occs <- tibble(svk = c("Jordbruksarbete", "Yrkesarbete", "Husligt arbete", "Hotellrörelse", "Kontor och handel"),
+       eng = c("Agricultural work", "Professional work", "Domestic work", "Hospitality", "Officework and trade"))
+
+knitr::kable(occs, col.names = c("Occupation", "English translation"))
+```
+
+
+The front side has vacancies listed.
+
+The reverse has information on jobseekers in each location.
+
+```{r}
+knitr::include_graphics(here("Riksvakanslistan", "images", "platssökande.png"))
+```
+
+
+```{r}
+dozers <- tibble(svk = c("**Schaktmästare** söker vägarbete eller annan liknande anställning. vidare genom arbetsförmedlingen, växjö"),
+       eng = c("Dozer masters are looking for road work or other similar employment. further through the employment service, växjö"))
+
+knitr::kable(dozers, col.names = c("Jobseeker ad", "English translation"))
+
+```
+
+
+### Information sources
+
+Number of vacancies are provided by the public employment service office in each län. The text reads "Lediga platser, anmälda vid kontor inom" ~ "Vacancies available registered at offices within" the different counties.  
