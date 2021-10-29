@@ -7,6 +7,15 @@ output:
         toc: true
         toc_float: true
         number_sections: false
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_file = paste0(
+        here::here(), '/index.html'
+      ),
+      envir = globalenv()
+    )
+  })
 ---
 
 ```{r setup, include=FALSE}
@@ -134,6 +143,21 @@ knitr::include_graphics(here("Riksvakanslistan", "images", "steam-adoption.png")
 
 ```{r}
 knitr::include_graphics(here("Riksvakanslistan", "images", "steam-workers.png"))
+
+```
+
+## Full images
+
+The images below show what the document looks like in its entirety:
+
+```{r}
+knitr::include_graphics(here("Riksvakanslistan", "images", "riksvakanslistan_21_09_1927.JPG"))
+```
+
+The reverse side reads:
+
+```{r}
+knitr::include_graphics(here("Riksvakanslistan", "images", "riksvakanslistan_21_09_1927_2.JPG"))
 
 ```
 

@@ -1,0 +1,11 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/828765/a51abad40ea841aaa23fc9e8ddee974f
+bundleId: https://api.rpubs.com/api/v1/document/828765/a51abad40ea841aaa23fc9e8ddee974f
+url: http://rpubs.com/j0nathan/828765
+when: 1635513032.55972
+lastSyncTime: 1635513032.55972
