@@ -1,0 +1,111 @@
+---
+title: "Share of internal migrants living in Sweden's municipalities: 1880-1910"
+output:
+  flexdashboard::flex_dashboard:
+    theme:
+      version: 4
+      bootswatch: yeti
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(shiny)
+library(scales)
+library(sf)
+library(here)
+library(ggiraph)
+library(glue)
+library(cowplot)
+# library(leaflet)
+
+
+theme_set(theme_light())
+df <- read_rds("migration-counts-named.rds")
+map <- read_rds("kommun_map.rds")
+# maps
+# map_file <- here("migration-shiny-idea", "maps", "Kommun_Sweref99TM_region.shp")
+# map <- st_read(map_file)
+# map_wgs84 <- st_transform(map, "+init=epsg:4326")
+# 
+# map_leaflet <- map_wgs84 %>% 
+#     leaflet() %>% 
+#     addTiles() %>% 
+#     addPolygons(label=~KnNamn)
+
+```
+
+Column {data-width=300}
+-----------------------------------------------------------------------
+
+### How does the share of a municipalities residents born outside of the municipality change over time?
+
+```{r}
+sliderInput("year", label = "Year:",
+            min = 1880, max = 1910, value = 1880, step = 10,
+            sep = "")
+
+selectizeInput(
+  "municipality",
+  label = "Municipality:",
+  choices = unique(df$kommun_living_name),
+  multiple = FALSE,
+  selected = "Stockholm"
+)
+```
+
+Column {data-width=900}
+-----------------------------------------------------------------------
+
+```{r}
+renderggiraph({
+  
+  g <- df %>% 
+  filter(YEAR == input$year) %>%
+  filter(kommun_living_name == input$municipality) %>%
+  inner_join(map, by = c("kommun_born" = "KnKod")) %>% 
+    mutate(tool_tip = glue("# living in {input$municipality} born in {kommun_born_name}: {n}")) %>% 
+    ggplot() +
+    geom_sf_interactive(aes(geometry = geometry, fill = n, tooltip = tool_tip, data_id = kommun_born_name)) +
+    scale_fill_viridis_c_interactive(trans = "sqrt", labels = number_format()) +
+    labs(fill = NULL) +
+    theme_void()
+  
+  f <- df %>% 
+  filter(YEAR == input$year) %>%
+  filter(kommun_living_name == input$municipality) %>%
+    group_by(kommun_living_name) %>% 
+    mutate(share = n / sum(n),
+           share_pct = percent(share, accuracy = 1)) %>% 
+    ungroup() %>% 
+    slice_max(share, n = 15) %>% 
+    mutate(kommun_born_name = fct_reorder(kommun_born_name, share)) %>% 
+    ggplot(aes(share, kommun_born_name, fill = n)) +
+    geom_col_interactive(aes(data_id = kommun_born_name, tooltip = share_pct)) +
+    scale_x_continuous(labels = percent_format()) +
+    scale_fill_viridis_c_interactive(trans = "sqrt") +
+    labs(x = glue("Share of residents of {input$municipality} born in:"),
+         y = NULL,
+         fill = NULL) +
+    theme(legend.position = "none")
+  
+  girafe(
+    ggobj = plot_grid(f, g, rel_widths = c(1, 1), ncol = 2),
+    width_svg = 8,
+    height_svg = 6,
+    options = list(
+      # opts_tooltip(css = tooltip_css, delay_mouseover = 0, delay_mouseout = 0),
+      opts_hover_inv(css = "opacity:0.1;"),
+      opts_hover(css = "stroke-width:2;")
+    )
+  )
+  
+})
+```
+
+
