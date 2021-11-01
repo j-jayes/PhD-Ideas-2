@@ -28,16 +28,16 @@ library(here)
 
 ## Purpose
 
-This document shows some examples of the riksvakanslistan (state vacancy lists) available at the main library special collections section in Lund.
+This document shows some examples of the riksvakanslistan (state vacancy lists) available at the main library special collections section in Lund. The later section discusses why they are interesting and what could be done with them.
 
 ## Document type
 
-The riksvakanslistan were lists of vacancies and job seekers collected, compiled and distributed by Sveriges Offentliga Arbetsförmedling (The Swedish Public Employment Service). The list was distributed weekly. Each list is a double sided sheet of paper, perhaps A3 size. It contains information on the number of vacancies available in each län (Swedish county) in addition to Stockholm city, for a total of 25 geographic units. Further, it has information on the arbetssökande or jobseekers in these same regions. In contrast to the vacancies section this section lacks the exact number of each type of jobseeker.
+The riksvakanslistan were lists of vacancies and job seekers collected, compiled and distributed by Sveriges Offentliga Arbetsförmedling (The Swedish Public Employment Service). The list was distributed weekly. Each list is a double sided sheet of paper, perhaps A3 size. It contains information on the number of vacancies available in each län (Swedish county) in addition to Stockholm city, for a total of 25 geographic units. Further, it has information on the arbetssökande or jobseekers in these same regions. In contrast to the vacancies section this section on job seekers lacks the exact number of each type.
 
 LUB has records from 1916 to 1958, with a few missing years, towards the end of the period.
 
 ## Document structure
-### Front side - vacancies
+### Front side - vacancies and offices
 
 The front side of the list contains a title section and coat of arms of the Kingdom of Sweden. In the top right of the document is the date.
 
@@ -80,6 +80,20 @@ knitr::include_graphics(here("Riksvakanslistan", "images", "mejerinnor.png"))
 
 There are more than 100 different occupations listed, and though these change slightly over time, it is an immense amount of information!
 
+#### Dessutom or In addition
+
+Below the table are a list of additional vacancies in positions which are less common or  so as to be excluded from the table above. These include, for example, bromsare or railway brakemen, gjuteri hantlangare or foundry hanymen, and jordschaktare or diggers. 
+
+#### Offices
+
+The list also includes the locations of the offices in each län. There is variation in these over time, indicative of an expanding public employment service. The photograph below shows what this list of offices looks like.
+
+```{r}
+knitr::include_graphics(here("Riksvakanslistan", "images", "kontor.png"))
+
+```
+
+
 ### Reverse side - job seekers and special ads
 
 The reverse side has information on job seekers by occupation in each location. Further, it divides job seekers into men and women.  It does not list the exact number of workers seeking work.
@@ -120,20 +134,27 @@ Where does the information printed come from? According to the text on the docum
 
 ## Why is it interesting?
 
-Three things make it interesting to me:
+Four things make it interesting to me:
 
-### 1. Documented skill gap and simultaneous reduction of informational costs
+### 1. Documented skill gap
 
-The source has information on the kinds of occupations that were needed in the different regions beyond what the employers could source locally. In this way, the source functions as a metric for the skills gap that existed in the geographic regions included, over time. Further, the special ads section contains more detailed descriptions of the kinds of workers sought, and this may reveal the kinds of skills that were highly sought after. We would expect that if this informational channel is effective, the labour market would function well and signals regarding the scarcity of workers would induce the unemployed to consider retraining or relocating.
+The source has information on the kinds of occupations that were needed in the different regions beyond what the employers could source locally. In this way, the source functions as a metric for the skills gap that existed in the geographic regions included, over time. It could be understood to measure how poor the matching was between worker skills and job demands.
+
+Further, the special ads section contains more detailed descriptions of the kinds of workers sought, and this may reveal the kinds of skills that were highly sought after. We would expect that if this informational channel is effective, the labour market would function well and signals regarding the scarcity of workers would induce workers (or the unemployed) to consider retraining or relocating.
+
+### 2. Reduction of informational costs
 
 The production of the the lists also lowers informational costs associated with relocating. If you are a worker and you know that it is possible to find work in your field through the public employment service in a certain area, the risk of moving to that area is much lower. I am not sure if there is some policy which shocks this, for instance a disruption in the printing for a few years, but this would create some lovely variation to exploit for a causal estimate.
 
-### 2. Amazing high frequency information.
+Further, the list of the locations of different Public Employment Service offices is useful in this regard. If there is a expansion in the number of offices in a geographical area, perhaps it is less costly for businesses to provide vacancy ads and in the short run, the number of ads increases, while in the long run, as more people with the right skills are hired, the number of ads declines? I need to think a bit more about exactly what the number of vacancies means. 
 
-The fact that the list is released every week is super cool! There will be seasonal patterns I am sure with agricultural workers recruited in anticipation of and during the agricultural season and then a likely lack of vacancies during the winter. It could be interesting to look at the extent to which seasonal variation increases or decreases over time in some occupations.
+If there is some shock to the costs of internal migration, and we could see who moved and where, this might be a way to quantify why.
 
+### 3. Amazing high frequency information.
 
-### 3. Complementarity with evidence on technology adoption.
+The fact that the list is released every week is super cool! There will be seasonal patterns I am sure with for example agricultural workers recruited in anticipation of and during the agricultural season and then a likely lack of vacancies during the winter. It could be interesting to look at the extent to which seasonal variation increases or decreases over time in some occupations.
+
+### 4. Complementarity with evidence on technology adoption.
 
 This information on worker skills sought might complement the evidence on technology adoption in different areas. For instance, we see from [Berger and Ostermeyer (forthcoming)](http://ssha2021.ssha.org/uploads/210200) that the adoption of the steam engine both replaced other sources of power and raised the number of workers employed within an establishment by a magnitude of 37 percent. This might allow us to answer questions like "how did the adoption of new technology change the kinds of skills sought by employers" not just their number.
 
